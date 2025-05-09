@@ -32,6 +32,8 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+
+
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.Font;
 import javax.swing.table.DefaultTableModel;
@@ -267,17 +269,48 @@ public class DetailController {
 	            serh.insertHistory1(his1);
 
 	            // Tạo và lưu History2M
-            	int id2 = serh.getMaxrow2();
-	            for (int i = 0; i < view.getTable1().getRowCount(); i++) {
-	                String name = view.getTable1().getValueAt(i, 1).toString();
-	                String idproduct = serh.getIdproductBuy(name);
-	                int qty = Integer.parseInt(view.getTable1().getValueAt(i, 2).toString());
-	                int price = Integer.parseInt(view.getTable1().getValueAt(i, 3).toString());
-	                int totalpricee = Integer.parseInt(view.getTable1().getValueAt(i, 4).toString());
-	                History2M his2 = new History2M(id2, idhd, idproduct, name, qty, price, totalpricee, sqlDate, branch);
+            	
+//	            for (int i = 0; i <=view.getTable1().getRowCount(); i++) {
+//	            	int id2 = serh.getMaxrow2();
+//	                String name = view.getTable1().getValueAt(i, 1).toString();
+//	                String idproduct = serh.getIdproductBuy(name);
+//	                int qty = Integer.parseInt(view.getTable1().getValueAt(i, 2).toString());
+//	                int price = Integer.parseInt(view.getTable1().getValueAt(i, 3).toString());
+//	                int totalpricee = Integer.parseInt(view.getTable1().getValueAt(i, 4).toString());
+//	                History2M his2 = new History2M(id2, idhd, idproduct, name, qty, price, totalpricee, sqlDate, branch);
+//	                serh.insertHistory2(his2);
+//	            }
+	            
+	            ArrayList<BuyItemM> list = serd.loadBuy();
+	            for (BuyItemM Item : list) {
+	            	int id2 = serh.getMaxrow2();
+	            	String name = Item.getName();
+	            	String idproduct = serh.getIdproductBuy(name);
+	            	int qty = Item.getQty();
+	            	int price = Item.getPrice();
+	            	int totalpricee = Item.getTotalprice();
+	            	History2M his2 = new History2M(id2, idhd, idproduct, name, qty, price, totalpricee, sqlDate, branch);
 	                serh.insertHistory2(his2);
 	            }
-
+	            
+//                  String name = tempItem.getName();
+//                  String idproduct = serp.getIdproductTB2(name);
+//                  int qtyTemp = tempItem.getQty();
+//                  int price= tempItem.getPrice();
+//                  int totalpricep = qtyTemp * price;
+//                  
+//              }
+	            
+//	            ArrayList<TempPurchaseM> list = serp.loadTempBuy();	                
+//                for (TempPurchaseM tempItem : list) {
+//                    String name = tempItem.getName();
+//                    String idproduct = serp.getIdproductTB2(name);
+//                    int qtyTemp = tempItem.getQty();
+//                    int price= tempItem.getPrice();
+//                    int totalpricep = qtyTemp * price;
+//                    
+//                }
+	            
 	            // Xóa dữ liệu và cập nhật giao diện
 	            serd.Deleteallbuy();
 	            serd.updateInfoBuynull();
