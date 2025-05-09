@@ -1,0 +1,161 @@
+CREATE DATABASE IF NOT EXISTS qlibanhang;
+USE qlibanhang;
+
+-- 1. Tạo bảng AccountManagers trước (vì nhiều bảng khóa ngoại tham chiếu tới nó)
+CREATE TABLE IF NOT EXISTS AccountManagers (
+    ida INT AUTO_INCREMENT PRIMARY KEY,
+    namea VARCHAR(100),
+    passworda VARCHAR(100),
+    brancha VARCHAR(50) UNIQUE,
+    addressa VARCHAR(255),
+    phonea VARCHAR(15),
+    rolea VARCHAR(50)
+);
+
+-- Chèn dữ liệu vào AccountManagers chỉ khi chưa tồn tại
+INSERT INTO AccountManagers (namea, passworda, brancha, addressa, phonea, rolea)
+SELECT 'Admin', '1', 'Trống', 'Trống', '09000000', 'Quản trị viên'
+FROM dual
+WHERE NOT EXISTS (
+    SELECT 1 FROM AccountManagers WHERE brancha = 'Trống'
+);
+
+-- 2. Bảng Warehouseproduct (vì BranchProduct cần khóa ngoại tới idproduct)
+CREATE TABLE IF NOT EXISTS Warehouseproduct (
+    stt INT PRIMARY KEY,
+    idproduct VARCHAR(12) UNIQUE DEFAULT NULL,
+    nameproduct VARCHAR(100),
+    priceproduct INT,
+    quantityproduct INT,
+    image LONGBLOB
+);
+
+-- 3. Bảng TempBuy
+CREATE TABLE IF NOT EXISTS TempBuy (
+    idtb INT PRIMARY KEY AUTO_INCREMENT,
+    idproduct VARCHAR(12),
+    nameproduct VARCHAR(100),
+    quantityproduct INT,
+    priceproduct INT
+);
+
+-- 4. Bảng IDHDrandom
+CREATE TABLE IF NOT EXISTS IDHDrandom (
+    IDHD VARCHAR(8) PRIMARY KEY DEFAULT ''
+);
+
+-- 5. Bảng Purchase
+CREATE TABLE IF NOT EXISTS Purchase (
+    idpur INT PRIMARY KEY,
+    idproduct VARCHAR(12),
+    nameproduct VARCHAR(100),
+    quantityproduct INT,
+    priceproduct INT,
+    totalprice INT,
+    brancha VARCHAR(50),
+    idhd VARCHAR(8)
+);
+
+-- 6. Bảng Infobuy
+CREATE TABLE IF NOT EXISTS Infobuy (
+    stt INT PRIMARY KEY,
+    idhd VARCHAR(8),
+    totalprice INT,
+    totalqty INT,
+    phonecustomer VARCHAR(15) DEFAULT '',
+    hour VARCHAR(20),
+    day DATE DEFAULT NULL
+);
+
+-- Chèn dữ liệu vào Infobuy chỉ khi chưa tồn tại
+INSERT INTO Infobuy (stt, idhd, totalprice, totalqty, phonecustomer, hour, day)
+SELECT 1, '########', 0, 0, '', '00:00', NULL
+FROM dual
+WHERE NOT EXISTS (
+    SELECT 1 FROM Infobuy WHERE stt = 1
+);
+
+-- 7. Bảng Employees (có khóa ngoại tới AccountManagers)
+CREATE TABLE IF NOT EXISTS Employees (
+    idnv INT PRIMARY KEY,
+    namenv VARCHAR(100),
+    gendernv VARCHAR(5),
+    phonenv VARCHAR(15),
+    cccdnv VARCHAR(12),
+    birth DATE,
+    worknv VARCHAR(50),
+    brancha VARCHAR(50) DEFAULT NULL,
+    banknv VARCHAR(15) DEFAULT '',
+    shiftnv INT DEFAULT 0,
+    salaryshiftnv INT DEFAULT 0,
+    salarynv INT DEFAULT 0,
+    awol INT DEFAULT 0,
+    late INT DEFAULT 0,
+    status VARCHAR(50) DEFAULT '',
+    CONSTRAINT fk_brancha FOREIGN KEY (brancha)
+        REFERENCES AccountManagers(brancha)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+);
+
+-- 8. Bảng History1
+CREATE TABLE IF NOT EXISTS History1 (
+    stt INT PRIMARY KEY,
+    idhd VARCHAR(8),
+    totalprice INT,
+    totalqty INT,
+    phonecustomer VARCHAR(15),
+    day DATE,
+    hour VARCHAR(20),
+    brancha VARCHAR(50),
+    FOREIGN KEY (brancha) REFERENCES AccountManagers(brancha)
+);
+
+-- 9. Bảng History2
+CREATE TABLE IF NOT EXISTS History2 (
+    stt INT PRIMARY KEY,
+    idhd VARCHAR(8),
+    idproduct VARCHAR(12),
+    nameproduct VARCHAR(100),
+    quantityproduct INT,
+    priceproduct INT,
+    totalprice INT,
+    day DATE,
+    brancha VARCHAR(50),
+    FOREIGN KEY (brancha) REFERENCES AccountManagers(brancha)
+);
+
+-- 10. Bảng Supplier
+CREATE TABLE IF NOT EXISTS Supplier (
+    ids INT PRIMARY KEY,
+    names VARCHAR(100),
+    phones VARCHAR(15),
+    address VARCHAR(200),    
+    nameproduct VARCHAR(80),
+    qtyproduct INT,
+    priceofoneproduct INT,
+    totalcapital BIGINT,
+    image LONGBLOB, 
+    day DATE
+);
+
+-- 11. Bảng BranchProduct (khóa ngoại tới cả AccountManagers và Warehouseproduct)
+CREATE TABLE IF NOT EXISTS BranchProduct (
+    idbranchproduct INT PRIMARY KEY AUTO_INCREMENT,
+    brancha VARCHAR(50),                        
+    addressa VARCHAR(255),
+    idproduct VARCHAR(12),
+    quantityproduct INT,
+    FOREIGN KEY (idproduct) REFERENCES Warehouseproduct(idproduct) ON UPDATE CASCADE,
+    FOREIGN KEY (brancha) REFERENCES AccountManagers(brancha)
+);
+
+-- 12. Trigger cập nhật idproduct trong BranchProduct nếu Warehouseproduct đổi idproduct
+CREATE TRIGGER IF NOT EXISTS update_branchproduct_idproduct
+AFTER UPDATE ON Warehouseproduct
+FOR EACH ROW
+BEGIN
+    UPDATE BranchProduct
+    SET idproduct = NEW.idproduct
+    WHERE idproduct = OLD.idproduct;
+END;
