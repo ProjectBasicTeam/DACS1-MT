@@ -16,6 +16,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableModel;
 
 import Controllers.HomeAdminController;
+import java.awt.Dimension;
 
 public class HomeAdmin extends JPanel{
 	private JTable table;
@@ -27,6 +28,9 @@ public class HomeAdmin extends JPanel{
 	private JLabel lbtotalfunds;
 	private JPanel pnchartcycle;
 	private JPanel pnchart;
+	private JButton btnexportweek;
+	private JButton btnexportmonth;
+	private JButton btnexportyear;
 	private void init() {
 		new HomeAdminController(this);
 	}
@@ -35,14 +39,14 @@ public class HomeAdmin extends JPanel{
 		
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(215, 217, 221));
-		panel.setBounds(0, 0, 1309, 1526);
+		panel.setBounds(0, 0, 1309, 1606);
 		add(panel);
 		panel.setLayout(null);
-		panel.setPreferredSize(new java.awt.Dimension(1309, 1500));
+		panel.setPreferredSize(new Dimension(1309, 1550));
 		JScrollPane scrollPane = new JScrollPane(panel);
 		scrollPane.setBounds(0, 0, 1309, 946); // Giới hạn chiều cao để kích hoạt thanh cuộn
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(30);
 		add(scrollPane);
 		
 		JPanel pntotalnv = new JPanel();
@@ -240,9 +244,42 @@ public class HomeAdmin extends JPanel{
 		pnchart = new JPanel();
 		pnchart.setBorder(new LineBorder(new Color(0, 0, 0), 4));
 		pnchart.setBackground(Color.WHITE);
-		pnchart.setBounds(21, 919, 1260, 535);
+		pnchart.setBounds(21, 975, 1260, 535);
 		panel.add(pnchart);
 		pnchart.setLayout(null);
+		
+		JPanel pn_btn = new JPanel();
+		pn_btn.setBorder(new LineBorder(new Color(0, 0, 0), 4));
+		pn_btn.setBackground(new Color(255, 255, 255));
+		pn_btn.setBounds(21, 902, 1258, 62);
+		panel.add(pn_btn);
+		pn_btn.setLayout(null);
+		
+		btnexportweek = new JButton("Tuần");
+		btnexportweek.setBackground(new Color(255, 255, 255));
+		btnexportweek.setForeground(new Color(0, 128, 64));
+		btnexportweek.setFont(new Font("Arial", Font.BOLD, 20));
+		btnexportweek.setBounds(410, 11, 244, 40);
+		pn_btn.add(btnexportweek);
+		
+		JLabel lblNewLabel_4 = new JLabel("Xuất Excel thông tin lợi nhuận theo:");
+		lblNewLabel_4.setFont(new Font("Arial", Font.BOLD, 22));
+		lblNewLabel_4.setBounds(10, 11, 373, 40);
+		pn_btn.add(lblNewLabel_4);
+		
+		btnexportmonth = new JButton("Tháng");
+		btnexportmonth.setBackground(new Color(255, 255, 255));
+		btnexportmonth.setForeground(new Color(0, 128, 64));
+		btnexportmonth.setFont(new Font("Arial", Font.BOLD, 20));
+		btnexportmonth.setBounds(692, 11, 244, 40);
+		pn_btn.add(btnexportmonth);
+		
+		btnexportyear = new JButton("Năm");
+		btnexportyear.setBackground(new Color(255, 255, 255));
+		btnexportyear.setForeground(new Color(0, 128, 64));
+		btnexportyear.setFont(new Font("Arial", Font.BOLD, 20));
+		btnexportyear.setBounds(979, 11, 244, 40);
+		pn_btn.add(btnexportyear);
 		init();
 	}
 	public JLabel getLbtotaldetail() {
@@ -271,5 +308,14 @@ public class HomeAdmin extends JPanel{
 	}
 	public JPanel getPnchart() {
 		return pnchart;
+	}
+	public JButton getBtnexportweek() {
+		return btnexportweek;
+	}
+	public JButton getBtnexportmonth() {
+		return btnexportmonth;
+	}
+	public JButton getBtnexportyear() {
+		return btnexportyear;
 	}
 }

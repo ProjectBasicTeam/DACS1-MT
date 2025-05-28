@@ -66,7 +66,7 @@ public class EmployeesSalaryController {
 	}
 	private boolean isEmpty() {
 		 if (view.getTfnumbanks().getText().isEmpty()) {
-			JOptionPane.showMessageDialog(view, "Vui lòng nhập căn cước công dân nhân viên", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(view, "Vui lòng nhập tài khoản ngân hàng của nhân viên", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
 			return false;
 		} 
 		return true;

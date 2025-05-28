@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 public class SupplierM {
 	private int ids, qtyproduct, priceoneproduct, totalcapital;
 	private String names, phones, nameproduct, addresss;
-	private byte []image;
+	private byte[] image;
 	private Date day;
 	public String getFormattedDay() {
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

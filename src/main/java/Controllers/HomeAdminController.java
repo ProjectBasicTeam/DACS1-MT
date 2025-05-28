@@ -30,7 +30,13 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import javax.swing.JOptionPane;
+import java.io.FileOutputStream;
+import java.util.Map;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 public class HomeAdminController {
     private HomeAdmin view;
     private StatisticManagers ser;
@@ -40,6 +46,7 @@ public class HomeAdminController {
         this.view = view;
         this.ser = StatisticManagers.getInstance();
         Loaddata();
+        addListeners();
     }
 
     public void Loadprofitdata() {
@@ -227,5 +234,106 @@ public class HomeAdminController {
                 }
             }
         }).start();
+    }
+    private void exportRevenueToExcel(String type) {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Doanh Thu " + type);
+
+        // Tạo hàng tiêu đề
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"STT", "Thời gian", "Tiền Doanh Thu (VNĐ)"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Lấy dữ liệu doanh thu dựa trên loại (tuần, tháng, năm)
+        int rowIndex = 1;
+        if (type.equals("week")) {
+            Map<String, Double> dailyRevenue = ser.getDailyRevenueThisWeek();
+            String[] daysOfWeek = {"Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"};
+            for (int i = 0; i < daysOfWeek.length; i++) {
+                String day = daysOfWeek[i];
+                Double revenue = dailyRevenue.get(day);
+                Row row = sheet.createRow(rowIndex++);
+                row.createCell(0).setCellValue(rowIndex - 1); // STT
+                row.createCell(1).setCellValue(day); // Ngày
+                row.createCell(2).setCellValue(revenue); // Tiền doanh thu
+            }
+        } else if (type.equals("month")) {
+            Map<Integer, Double> dailyRevenue = ser.getDailyRevenueThisMonth();
+            for (Map.Entry<Integer, Double> entry : dailyRevenue.entrySet()) {
+                Row row = sheet.createRow(rowIndex++);
+                row.createCell(0).setCellValue(rowIndex - 1); // STT
+                row.createCell(1).setCellValue("Ngày " + entry.getKey()); // Ngày
+                row.createCell(2).setCellValue(entry.getValue()); // Tiền doanh thu
+            }
+        } else if (type.equals("year")) {
+            Map<Integer, Double> monthlyRevenue = ser.getMonthlyRevenueThisYear();
+            for (Map.Entry<Integer, Double> entry : monthlyRevenue.entrySet()) {
+                Row row = sheet.createRow(rowIndex++);
+                row.createCell(0).setCellValue(rowIndex - 1); // STT
+                row.createCell(1).setCellValue("Tháng " + entry.getKey()); // Tháng
+                row.createCell(2).setCellValue(entry.getValue()); // Tiền doanh thu
+            }
+        }
+
+        // Tự động điều chỉnh kích thước cột
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Sử dụng FileDialog để chọn nơi lưu file
+        java.awt.FileDialog fileDialog = new java.awt.FileDialog((java.awt.Frame) null, "Chọn nơi lưu file Excel", java.awt.FileDialog.SAVE);
+        fileDialog.setFile("DoanhThu_" + type + ".xlsx");
+        fileDialog.setVisible(true);
+
+        String fileName = fileDialog.getFile();
+        String directory = fileDialog.getDirectory();
+
+        if (fileName != null) {
+            if (!fileName.toLowerCase().endsWith(".xlsx")) {
+                fileName += ".xlsx";
+            }
+            String filePath = directory + fileName;
+
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+                JOptionPane.showMessageDialog(null, "Xuất file Excel thành công tại: " + filePath, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Lỗi khi xuất file Excel: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Hủy xuất file Excel.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        }
+
+        try {
+            workbook.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    private void addListeners() {
+    	view.getBtnexportweek().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exportRevenueToExcel("week");
+            }
+        });
+
+        view.getBtnexportmonth().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exportRevenueToExcel("month");
+            }
+        });
+
+        view.getBtnexportyear().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exportRevenueToExcel("year");
+            }
+        });
     }
 }

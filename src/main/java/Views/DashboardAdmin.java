@@ -45,7 +45,7 @@ public class DashboardAdmin extends JFrame {
 	    // HomeAdmin có thanh cuộn riêng
 	    HomeAdmin homePanel = new HomeAdmin();
 	    JScrollPane scrollPaneHome = new JScrollPane(homePanel);
-	    scrollPaneHome.getVerticalScrollBar().setUnitIncrement(16); // Tăng tốc độ cuộn
+	    scrollPaneHome.getVerticalScrollBar().setUnitIncrement(30); // Tăng tốc độ cuộn
 
 	    // Thêm vào card layout
 	    panelcard.add(scrollPaneHome, "1");  // Chỉ HomeAdmin có thanh cuộn
